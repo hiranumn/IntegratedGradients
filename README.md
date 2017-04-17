@@ -25,4 +25,6 @@ ig.explain(X[0])
 ==> array([-0.25757075, -0.24014562,  0.12732635,  0.00960122])
 ```
 
+The above example is on the Sequential model but it works on the Keras generic Model as well.
+
 Email me at hiranumn at cs dot washington dot edu for questions.
