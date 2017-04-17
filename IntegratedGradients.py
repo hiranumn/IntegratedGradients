@@ -17,6 +17,8 @@ from time import sleep
 import sys
 import keras.backend as K
 
+from keras.models import Model, Sequential
+
 '''
 Input: numpy array of a sample
 Optional inputs:
@@ -46,11 +48,17 @@ class integrated_gradients:
     # outchannels: In case the model has multiple outputs, you can specify 
     def __init__(self, model, outchannels=False, verbose=1):
         #load model
-        self.model = model
+        if isinstance(model, Sequential):
+            self.model = model.model
+        elif isinstance(model, Model):
+            self.model = model
+        else:
+            print "Invalid input model"
+            return -1
         
         #load input tensors
-        self.input_tensors = [model.inputs[0], # input data
-                 model.model.sample_weights[0], # how much to weight each sample by
+        self.input_tensors = [self.model.inputs[0], # input data
+                 self.model.sample_weights[0], # how much to weight each sample by
                  K.learning_phase()
                  ]
         
