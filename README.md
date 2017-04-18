@@ -5,7 +5,7 @@ Python implementation of integrated gradients (https://arxiv.org/abs/1703.01365)
 
 Here is a minimal working example on UCI Iris data
 
-```
+``` Python
 from IntegratedGradients import *
 from keras.layers import Dense
 from keras.layers.core import Activation
