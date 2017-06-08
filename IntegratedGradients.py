@@ -26,9 +26,9 @@ Optional inputs:
     - steps: # steps from reference values to the actual sample.
 Output: list of numpy arrays to integrated over.
 '''
-def linear_ip(sample, reference=False, steps=50):
+def linear_ip(sample, reference=None, steps=50):
     # Use default reference values if reference is not specified
-    if not(reference): reference = np.zeros(sample.shape);
+    if reference is None: reference = np.zeros(sample.shape);
         
     # Calcuated stepwise difference from reference to the actual sample.
     ret = np.zeros(tuple([steps] +[i for i in sample.shape]))
