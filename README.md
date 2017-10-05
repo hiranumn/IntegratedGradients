@@ -40,21 +40,6 @@ Integrated gradients algorithm work by estimating the Shapley values for all fea
 ![alt text](notebooks/figures/18745.png)
 ![alt text](notebooks/figures/1995.png)
 ![alt text](notebooks/figures/23525.png)
-![alt text](notebooks/figures/23543.png)
-![alt text](notebooks/figures/24271.png)
-![alt text](notebooks/figures/24280.png)
-![alt text](notebooks/figures/27694.png)
-![alt text](notebooks/figures/27924.png)
-![alt text](notebooks/figures/28435.png)
-![alt text](notebooks/figures/36722.png)
-![alt text](notebooks/figures/42313.png)
-![alt text](notebooks/figures/43880.png)
-![alt text](notebooks/figures/44168.png)
-![alt text](notebooks/figures/44180.png)
-![alt text](notebooks/figures/50336.png)
-![alt text](notebooks/figures/52631.png)
-![alt text](notebooks/figures/6433.png)
-![alt text](notebooks/figures/6527.png)
 
 # References
 - Sundararajan, Mukund, Ankur Taly, and Qiqi Yan. "Axiomatic Attribution for Deep Networks." arXiv preprint arXiv:1703.01365 (2017).
