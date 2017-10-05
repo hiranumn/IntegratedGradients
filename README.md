@@ -34,6 +34,7 @@ ig = integrated_gradients(model)
 ``` Python
 ig.explain(X[0])
 ==> array([-0.25757075, -0.24014562,  0.12732635,  0.00960122])
+```
 
 More thorough examle can be found [here](examples/example.ipynb).
 
