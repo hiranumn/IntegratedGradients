@@ -34,12 +34,13 @@ ig = integrated_gradients(model)
 ``` Python
 ig.explain(X[0])
 ==> array([-0.25757075, -0.24014562,  0.12732635,  0.00960122])
-```
 
-# Supported features
-- Works on both Sequential() and Model() instances.
-- Works on both tensorflow and theano backends.
-- Wroks on models with multiple outputs.
+More thorough examle can be found [here](examples/example.ipynb).
+
+# Features
+- supports both Sequential() and Model() instances.
+- supports both **TensorFlow** and **Theano** backends.
+- works on models with multiple outputs.
 
 # How does it work?
 
