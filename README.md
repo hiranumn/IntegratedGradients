@@ -35,7 +35,7 @@ ig.explain(X[0])
 ```
 
 More thorough example can be found [here](examples/example.ipynb).  
-There is also an [example](examples/VGG%20example.ipynb) of running this on VGG16 model 
+There is also an [example](examples/VGG%20example.ipynb) of running this on VGG16 model. 
 
 # Features
 - supports both Sequential() and Model() instances.
