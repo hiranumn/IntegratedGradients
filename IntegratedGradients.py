@@ -7,11 +7,6 @@
 #                                                              #
 # Keywords: Shapley values, interpretable machine learning     #
 ################################################################
-
-# TODOs
-# - See it this works with Tensorflow backend?
-# - Make it compatible with non-sequential model.
-
 import numpy as np
 from time import sleep
 import sys
@@ -20,34 +15,19 @@ import keras.backend as K
 from keras.models import Model, Sequential
 
 '''
-Input: numpy array of a sample
-Optional inputs:
-    - reference: reference values (defaulted to 0s).
-    - steps: # steps from reference values to the actual sample.
-Output: list of numpy arrays to integrated over.
-'''
-def linear_ip(sample, reference=None, steps=50):
-    # Use default reference values if reference is not specified
-    if reference is None: reference = np.zeros(sample.shape);
-        
-    # Calcuated stepwise difference from reference to the actual sample.
-    ret = np.zeros(tuple([steps] +[i for i in sample.shape]))
-    for s in range(steps):
-        ret[s] = reference+(sample-reference)*(s*1.0/steps)
-        
-    return ret, steps, (sample-reference)*(1.0/steps)
-
-'''
 Integrated gradients approximates Shapley values by integrating partial
 gradients with respect to input features from reference input to the
 actual input. The following class implements this concept.
 '''
 class integrated_gradients:
-    
     # model: Keras model that you wish to explain.
-    # outchannels: In case the model has multiple outputs, you can specify 
-    def __init__(self, model, outchannels=False, verbose=1):
-        #load model
+    # outchannels: In case the model are multi tasking, you can specify which channels you want.
+    def __init__(self, model, outchannels=[], verbose=1):
+    
+        # Bacnend: either tensorflow or theano)
+        self.backend = K.backend()
+        
+        #load model supports keras.Model and keras.Sequential
         if isinstance(model, Sequential):
             self.model = model.model
         elif isinstance(model, Model):
@@ -57,49 +37,104 @@ class integrated_gradients:
             return -1
         
         #load input tensors
-        self.input_tensors = [self.model.inputs[0], # input data
-                 self.model.sample_weights[0], # how much to weight each sample by
-                 K.learning_phase()
+        self.input_tensors = [
+                 # input data place holder
+                 self.model.inputs[0],             
+                 # how much to weight each sample by
+                 self.model.sample_weights[0],
+                 # The learning phase flag is a bool tensor (0 = test, 1 = train)
+                 # to be passed as input to any Keras function that uses 
+                 # a different behavior at train time and test time.
+                 K.learning_phase() 
                  ]
         
-        if not outchannels: 
-            outchannels = range(self.model.output._keras_shape[1])
-            if verbose:
-                print "Evaluated output channels (0-based index): All"
-        else:
-            if verbose:
-                print "Evaluated output channels (0-based index):",
-                for i in outchannels:
-                    print i,
-                print
+        #If outputchanel is specified, use it.
+        #Otherwise evalueate all outputs.
         self.outchannels = outchannels
+        if len(self.outchannels) == 0: 
+            if verbose: print "Evaluated output channel (0-based index): All"
+            if K.backend() == "tensorflow":
+                self.outchannels = range(self.model.output.shape[1]._value)
+            elif K.backend() == "theano":
+                self.outchannels = range(model1.output._keras_shape[1])
+        else:
+            if verbose: 
+                print "Evaluated output channels (0-based index):", 
+                for i in self.outchannels: print i
+                print
                 
         #Build gradient functions for desired output channels.
         self.get_gradients = {}
-        index = 0
         if verbose: print "Building gradient functions"
-        for f in range(len(outchannels)):
-            gradients = model.optimizer.get_gradients(model.layers[-1].output.flatten()[outchannels[f]], model.inputs)
-            self.get_gradients[f] = K.function(inputs=self.input_tensors, outputs=gradients)
+        
+            # Evaluate over all channels.
+        for c in self.outchannels:
+            # Get tensor that calcuates gradient
+            if K.backend() == "tensorflow":
+                gradients = self.model.optimizer.get_gradients(self.model.output[:, c], self.model.input)
+            if K.backend() == "theano":
+                gradients = self.model.optimizer.get_gradients(self.model.output[:, c].sum(), self.model.input)
+                
+            # Build computational graph that calculates the tensfor given inputs
+            self.get_gradients[c] = K.function(inputs=self.input_tensors, outputs=gradients)
             
+            # This takes a lot of time for a big model with many tasks.
+            # So lets pring the progress.
             if verbose:
                 sys.stdout.write('\r')
-                sys.stdout.write("Progress: "+str(int((f+1)*1.0/len(outchannels)*1000)*1.0/10)+"%")
+                sys.stdout.write("Progress: "+str(int((c+1)*1.0/len(self.outchannels)*1000)*1.0/10)+"%")
                 sys.stdout.flush()
+        # Done
         if verbose: print "\nDone."
-
-    def explain(self, sample, outc=0, reference=False, steps=50, verbose=0):
-        linear_interpolated_samples, steps, stepsize = linear_ip(sample, reference, steps)
+            
+                
+    '''
+    Input: sample to explain, channel to explain
+    Optional inputs:
+        - reference: reference values (defaulted to 0s).
+        - steps: # steps from reference values to the actual sample.
+    Output: list of numpy arrays to integrated over.
+    '''
+    def explain(self, sample, outc=0, reference=False, num_steps=50, verbose=0):
+        samples, num_steps, step_sizes = integrated_gradients.linearly_interpolate(sample, reference, num_steps)
+        
+        # Desired channel must be in the list of outputchannels
+        assert outc in self.outchannels
         if verbose: print "Explaning the "+str(self.outchannels[outc])+"th output."
+            
+        # For tensorflow backend
+        _input = [samples, # X
+          np.ones(num_steps+1), # sample weights
+          0 # learning phase in TEST mode
+          ]
         
-        explanation = np.zeros(sample.shape) 
-        
-        #TODO: Figure out a way to do this in batch
-        for i in range(steps):
-            _input = [linear_interpolated_samples[i:i+1,:], # X
-              [1], # sample weights
-              0 # learning phase in TEST mode
-              ]
-            insta_gradients = self.get_gradients[outc](_input)[0]
-            explanation += np.multiply(insta_gradients[0,:], stepsize)
+        if K.backend() == "tensorflow": 
+            gradients = self.get_gradients[outc](_input)[0]
+        elif K.backend() == "theano":
+            gradients = self.get_gradients[outc](_input)
+        gradients = np.sum(gradients, axis=0)
+        explanation = np.multiply(gradients, step_sizes)
         return explanation
+
+    
+    '''
+    Input: numpy array of a sample
+    Optional inputs:
+        - reference: reference values (defaulted to 0s).
+        - steps: # steps from reference values to the actual sample.
+    Output: list of numpy arrays to integrated over.
+    '''
+    @staticmethod
+    def linearly_interpolate(sample, reference=False, num_steps=50):
+        # Use default reference values if reference is not specified
+        if reference is False: reference = np.zeros(sample.shape);
+
+        # Reference and sample shape needs to match exactly
+        assert sample.shape == reference.shape
+
+        # Calcuated stepwise difference from reference to the actual sample.
+        ret = np.zeros(tuple([num_steps] +[i for i in sample.shape]))
+        for s in range(num_steps):
+            ret[s] = reference+(sample-reference)*(s*1.0/num_steps)
+
+        return ret, num_steps, (sample-reference)*(1.0/num_steps)
