@@ -3,8 +3,7 @@ Python implementation of integrated gradients [1]. The algorithm "explains" a pr
 
 # Usage
 
-Using Integrated_Gradients is very easy. 
-There is no need to modify your Keras model.
+Using Integrated_Gradients is very easy. There is no need to modify your Keras model.  
 Here is a minimal working example on UCI Iris data.
 
 1. Build your own Keras model and train it.
@@ -24,6 +23,8 @@ model.compile(optimizer='sgd', loss='binary_crossentropy')
 model.fit(X, Y, epochs=300, batch_size=10, validation_split=0.2, verbose=0)
 ```
 
+A more thorough can be found [here](examples/example.ipynb) . 
+
 2. Wrap it with an integrated_gradients instance.
 ``` Python
 ig = integrated_gradients(model)
@@ -35,7 +36,10 @@ ig.explain(X[0])
 ==> array([-0.25757075, -0.24014562,  0.12732635,  0.00960122])
 ```
 
-The above example is on a Sequential model but this module works on Keras generic models as well.
+# Supported features
+- Works on both Sequential() and Model() instances.
+- Works on both tensorflow and theano backends.
+- Wroks on models with multiple outputs.
 
 # How does it work?
 
