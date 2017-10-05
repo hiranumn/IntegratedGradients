@@ -41,7 +41,7 @@ class integrated_gradients:
                  # input data place holder
                  self.model.inputs[0],             
                  # how much to weight each sample by
-                 self.model.sample_weights[0],
+                 #self.model.sample_weights[0],
                  # The learning phase flag is a bool tensor (0 = test, 1 = train)
                  # to be passed as input to any Keras function that uses 
                  # a different behavior at train time and test time.
@@ -104,7 +104,7 @@ class integrated_gradients:
             
         # For tensorflow backend
         _input = [samples, # X
-          np.ones(num_steps+1), # sample weights
+          #np.ones(num_steps+1), # sample weights
           0 # learning phase in TEST mode
           ]
         
