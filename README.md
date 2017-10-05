@@ -1,9 +1,14 @@
 # Integrated Gradients
-Python implementation of integrated gradients [1]. The algorithm "explains" a prediction of a Keras-based deep learning model by approximating Shapley values and assigning them to the input sample features. 
+Python implementation of integrated gradients [1]. The algorithm "explains" a prediction of a Keras-based deep learning model by approximating Aumann–Shapley values and assigning them to the input sample features. 
 
 # Usage
 
-Here is a minimal working example on UCI Iris data
+Using Integrated_Gradients is very easy. There is no need to modify your model.
+1. Build you own Keras model and train it.
+2. Wrap it with an integrated_gradients instance.
+3. Call explain() with a sample to explain.
+
+Here is a minimal working example on UCI Iris data.
 
 ``` Python
 from IntegratedGradients import *
