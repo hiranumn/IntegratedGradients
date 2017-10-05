@@ -35,5 +35,7 @@ Integrated gradients algorithm work by estimating the Shapley values for all fea
 
 Coming soon.
 
-
+# Reference
+- Sundararajan, Mukund, Ankur Taly, and Qiqi Yan. "Axiomatic Attribution for Deep Networks." arXiv preprint arXiv:1703.01365 (2017).
+^ Lundberg, Scott, and Su-In Lee. "An unexpected unity among methods for interpreting model predictions." arXiv preprint arXiv:1611.07478 (2016).
 Email me at hiranumn at cs dot washington dot edu for questions.
