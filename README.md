@@ -23,8 +23,6 @@ model.compile(optimizer='sgd', loss='binary_crossentropy')
 model.fit(X, Y, epochs=300, batch_size=10, validation_split=0.2, verbose=0)
 ```
 
-A more thorough can be found [here](examples/example.ipynb) . 
-
 2. Wrap it with an integrated_gradients instance.
 ``` Python
 ig = integrated_gradients(model)
