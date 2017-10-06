@@ -6,7 +6,7 @@ Python implementation of integrated gradients [1]. The algorithm "explains" a pr
 Using Integrated_Gradients is very easy. There is no need to modify your Keras model.  
 Here is a minimal working example on UCI Iris data.
 
-1. Build your own Keras model and train it.
+1. Build your own Keras model and train it. Make sure to complie it!
 ``` Python
 from IntegratedGradients import *
 from keras.layers import Dense
