@@ -35,8 +35,8 @@ ig.explain(X[0])
 ```
 
 More thorough example can be found [here](examples/example.ipynb).  
-There is also an [example](examples/VGG%20example.ipynb) of running this on VGG16 model.
-If your network has multiple input sources (branches), you can take a look at [this](examples/Networks%20with%20multiple inputs.ipynb) 
+There is also an [example](examples/VGG%20example.ipynb) of running this on VGG16 model.  
+If your network has multiple input sources (branches), you can take a look at [this](examples/Networks%20with%20multiple%20inputs.ipynb) 
 
 # Features
 - supports both Sequential() and Model() instances.
