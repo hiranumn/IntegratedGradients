@@ -37,16 +37,13 @@ class integrated_gradients:
             return -1
         
         #load input tensors
-        self.input_tensors = [
-                 # input data place holder
-                 self.model.inputs[0],             
-                 # how much to weight each sample by
-                 #self.model.sample_weights[0],
-                 # The learning phase flag is a bool tensor (0 = test, 1 = train)
-                 # to be passed as input to any Keras function that uses 
-                 # a different behavior at train time and test time.
-                 K.learning_phase() 
-                 ]
+        self.input_tensors = []
+        for i in self.model.inputs:
+            self.input_tensors.append(i)
+        # The learning phase flag is a bool tensor (0 = test, 1 = train)
+        # to be passed as input to any Keras function that uses 
+        # a different behavior at train time and test time.
+        self.input_tensors.append(K.learning_phase())
         
         #If outputchanel is specified, use it.
         #Otherwise evalueate all outputs.
@@ -96,25 +93,61 @@ class integrated_gradients:
     Output: list of numpy arrays to integrated over.
     '''
     def explain(self, sample, outc=0, reference=False, num_steps=50, verbose=0):
-        samples, num_steps, step_sizes = integrated_gradients.linearly_interpolate(sample, reference, num_steps)
         
+        # Each element for each input stream.
+        samples = []
+        numsteps = []
+        step_sizes = []
+        
+        # If multiple inputs are present, feed them as list of np arrays. 
+        if isinstance(sample, list):
+            #If reference is present, reference and sample size need to be equal.
+            if reference != False: 
+                assert len(sample) == len(reference)
+            for i in range(len(sample)):
+                if reference == False:
+                    _output = integrated_gradients.linearly_interpolate(sample[i], False, num_steps)
+                else:
+                    _output = integrated_gradients.linearly_interpolate(sample[i], False, num_steps)
+                samples.append(_output[0])
+                numsteps.append(_output[1])
+                step_sizes.append(_output[2])
+        
+        # Or you can feed just a single numpy arrray. 
+        elif isinstance(sample, np.ndarray):
+            _output = integrated_gradients.linearly_interpolate(sample, reference, num_steps)
+            samples.append(_output[0])
+            numsteps.append(_output[1])
+            step_sizes.append(_output[2])
+            
         # Desired channel must be in the list of outputchannels
         assert outc in self.outchannels
         if verbose: print "Explaning the "+str(self.outchannels[outc])+"th output."
             
         # For tensorflow backend
-        _input = [samples, # X
-          #np.ones(num_steps+1), # sample weights
-          0 # learning phase in TEST mode
-          ]
+        _input = []
+        for s in samples:
+            _input.append(s)
+        _input.append(0)
         
         if K.backend() == "tensorflow": 
-            gradients = self.get_gradients[outc](_input)[0]
+            gradients = self.get_gradients[outc](_input)
         elif K.backend() == "theano":
             gradients = self.get_gradients[outc](_input)
-        gradients = np.sum(gradients, axis=0)
-        explanation = np.multiply(gradients, step_sizes)
-        return explanation
+            if len(self.model.inputs) == 1:
+                gradients = [gradients]
+        
+        explanation = []
+        for i in range(len(gradients)):
+            _temp = np.sum(gradients[i], axis=0)
+            explanation.append(np.multiply(_temp, step_sizes[i]))
+            
+
+        if isinstance(sample, list):
+            return explanation
+        elif isinstance(sample, np.ndarray):
+            return explanation[0]
+        return -1
 
     
     '''
