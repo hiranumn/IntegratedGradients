@@ -7,6 +7,7 @@
 #                                                              #
 # Keywords: Shapley values, interpretable machine learning     #
 ################################################################
+from __future__ import division, print_function
 import numpy as np
 from time import sleep
 import sys
@@ -33,7 +34,7 @@ class integrated_gradients:
         elif isinstance(model, Model):
             self.model = model
         else:
-            print "Invalid input model"
+            print("Invalid input model")
             return -1
         
         #load input tensors
@@ -49,20 +50,19 @@ class integrated_gradients:
         #Otherwise evalueate all outputs.
         self.outchannels = outchannels
         if len(self.outchannels) == 0: 
-            if verbose: print "Evaluated output channel (0-based index): All"
+            if verbose: print("Evaluated output channel (0-based index): All")
             if K.backend() == "tensorflow":
                 self.outchannels = range(self.model.output.shape[1]._value)
             elif K.backend() == "theano":
                 self.outchannels = range(model1.output._keras_shape[1])
         else:
             if verbose: 
-                print "Evaluated output channels (0-based index):", 
-                for i in self.outchannels: print i
-                print
+                print("Evaluated output channels (0-based index):")
+                print(','.join([str(i) for i in self.outchannels]))
                 
         #Build gradient functions for desired output channels.
         self.get_gradients = {}
-        if verbose: print "Building gradient functions"
+        if verbose: print("Building gradient functions")
         
             # Evaluate over all channels.
         for c in self.outchannels:
@@ -82,7 +82,7 @@ class integrated_gradients:
                 sys.stdout.write("Progress: "+str(int((c+1)*1.0/len(self.outchannels)*1000)*1.0/10)+"%")
                 sys.stdout.flush()
         # Done
-        if verbose: print "\nDone."
+        if verbose: print("\nDone.")
             
                 
     '''
@@ -122,7 +122,7 @@ class integrated_gradients:
             
         # Desired channel must be in the list of outputchannels
         assert outc in self.outchannels
-        if verbose: print "Explaning the "+str(self.outchannels[outc])+"th output."
+        if verbose: print("Explaning the "+str(self.outchannels[outc])+"th output.")
             
         # For tensorflow backend
         _input = []
