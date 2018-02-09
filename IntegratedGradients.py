@@ -1,7 +1,7 @@
 ################################################################
 # Implemented by Naozumi Hiranuma (hiranumn@uw.edu)            #
 #                                                              #
-# Kears-compatible implmentation of Integrated Gradients       # 
+# Keras-compatible implmentation of Integrated Gradients       # 
 # proposed in "Axiomatic attribution for deep neuron networks" #
 # (https://arxiv.org/abs/1703.01365).                          #
 #                                                              #
