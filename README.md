@@ -1,5 +1,5 @@
 # Integrated Gradients
-Python implementation of integrated gradients [1]. The algorithm "explains" a prediction of a Keras-based deep learning model by approximating Aumann–Shapley values and for the input features. These values allocate the difference between the model prediction for a reference value (all zeros by default) and the prediction for the current sample among the input features.
+Python implementation of integrated gradients [1]. The algorithm "explains" a prediction of a Keras-based deep learning model by approximating Aumann–Shapley values and for the input features. These values allocate the difference between the model prediction for a reference value (all zeros by default) and the prediction for the current sample among the input features. **[TensorFlow version](https://github.com/hiranumn/IntegratedGradientsTF) is implemented now!**
 
 # Usage
 
