@@ -7,6 +7,7 @@
 #                                                              #
 # Keywords: Shapley values, interpretable machine learning     #
 ################################################################
+
 from __future__ import division, print_function
 import numpy as np
 from time import sleep
@@ -18,14 +19,15 @@ from keras.models import Model, Sequential
 '''
 Integrated gradients approximates Shapley values by integrating partial
 gradients with respect to input features from reference input to the
-actual input. The following class implements this concept.
+actual input. The following class implements the paper "Axiomatic attribution
+for deep neuron networks".
 '''
 class integrated_gradients:
     # model: Keras model that you wish to explain.
-    # outchannels: In case the model are multi tasking, you can specify which channels you want.
+    # outchannels: In case the model are multi tasking, you can specify which output you want explain .
     def __init__(self, model, outchannels=[], verbose=1):
     
-        # Bacnend: either tensorflow or theano)
+        #get backend info (either tensorflow or theano)
         self.backend = K.backend()
         
         #load model supports keras.Model and keras.Sequential
@@ -46,7 +48,7 @@ class integrated_gradients:
         # a different behavior at train time and test time.
         self.input_tensors.append(K.learning_phase())
         
-        #If outputchanel is specified, use it.
+        #If outputchanels are specified, use it.
         #Otherwise evalueate all outputs.
         self.outchannels = outchannels
         if len(self.outchannels) == 0: 
@@ -64,19 +66,19 @@ class integrated_gradients:
         self.get_gradients = {}
         if verbose: print("Building gradient functions")
         
-            # Evaluate over all channels.
+        # Evaluate over all requested channels.
         for c in self.outchannels:
-            # Get tensor that calcuates gradient
+            # Get tensor that calculates gradient
             if K.backend() == "tensorflow":
                 gradients = self.model.optimizer.get_gradients(self.model.output[:, c], self.model.input)
             if K.backend() == "theano":
                 gradients = self.model.optimizer.get_gradients(self.model.output[:, c].sum(), self.model.input)
                 
-            # Build computational graph that calculates the tensfor given inputs
+            # Build computational graph that computes the tensors given inputs
             self.get_gradients[c] = K.function(inputs=self.input_tensors, outputs=gradients)
             
             # This takes a lot of time for a big model with many tasks.
-            # So lets pring the progress.
+            # So lets print the progress.
             if verbose:
                 sys.stdout.write('\r')
                 sys.stdout.write("Progress: "+str(int((c+1)*1.0/len(self.outchannels)*1000)*1.0/10)+"%")
@@ -89,7 +91,7 @@ class integrated_gradients:
     Input: sample to explain, channel to explain
     Optional inputs:
         - reference: reference values (defaulted to 0s).
-        - steps: # steps from reference values to the actual sample.
+        - steps: # steps from reference values to the actual sample (defualted to 50).
     Output: list of numpy arrays to integrated over.
     '''
     def explain(self, sample, outc=0, reference=False, num_steps=50, verbose=0):
@@ -141,8 +143,8 @@ class integrated_gradients:
         for i in range(len(gradients)):
             _temp = np.sum(gradients[i], axis=0)
             explanation.append(np.multiply(_temp, step_sizes[i]))
-            
-
+           
+        # Format the return values according to the input sample.
         if isinstance(sample, list):
             return explanation
         elif isinstance(sample, np.ndarray):
@@ -155,7 +157,7 @@ class integrated_gradients:
     Optional inputs:
         - reference: reference values (defaulted to 0s).
         - steps: # steps from reference values to the actual sample.
-    Output: list of numpy arrays to integrated over.
+    Output: list of numpy arrays to integrate over.
     '''
     @staticmethod
     def linearly_interpolate(sample, reference=False, num_steps=50):
