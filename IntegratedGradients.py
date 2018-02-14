@@ -54,7 +54,7 @@ class integrated_gradients:
             if K.backend() == "tensorflow":
                 self.outchannels = range(self.model.output.shape[1]._value)
             elif K.backend() == "theano":
-                self.outchannels = range(model1.output._keras_shape[1])
+                self.outchannels = range(self.model.output._keras_shape[1])
         else:
             if verbose: 
                 print("Evaluated output channels (0-based index):")
