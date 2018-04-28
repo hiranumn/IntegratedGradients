@@ -110,7 +110,7 @@ class integrated_gradients:
                 if reference == False:
                     _output = integrated_gradients.linearly_interpolate(sample[i], False, num_steps)
                 else:
-                    _output = integrated_gradients.linearly_interpolate(sample[i], False, num_steps)
+                    _output = integrated_gradients.linearly_interpolate(sample[i], reference[i], num_steps)
                 samples.append(_output[0])
                 numsteps.append(_output[1])
                 step_sizes.append(_output[2])
