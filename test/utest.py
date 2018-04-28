@@ -35,7 +35,7 @@ class test(unittest.TestCase):
         total = model.predict(X[0:1, :])[0,0]-model.predict(np.zeros((1,4)))[0,0]
         
         ig = integrated_gradients(model, verbose=0)
-        explanation = ig.explain(X[0],steps=100000)
+        explanation = ig.explain(X[0], num_steps=100000)
         self.assertAlmostEqual(total, np.sum(explanation), places=3)
 
 if __name__ == '__main__':
